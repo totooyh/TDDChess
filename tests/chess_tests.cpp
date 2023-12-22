@@ -291,5 +291,43 @@ TEST_F(chessBoardTest, allPiecesStartCorrectlyWhenStartGame){
       ASSERT_EQ(chessGame.getPieceAt(i,j),' ');
     }
   }
+}
+
+TEST_F(chessBoardTest, whitePawnPromotionQueen){
+  chessGame.putPiece(6,0,'P');
+  chessGame.movePiece(6,0,7,0);
+  chessGame.choosePromotion('Q');
+  ASSERT_EQ(chessGame.getPieceAt(7,0),'Q');
+}
+
+TEST_F(chessBoardTest, whitePawnPromotionKnight){
+  chessGame.putPiece(6,0,'P');
+  chessGame.movePiece(6,0,7,0);
+  chessGame.choosePromotion('N');
+  ASSERT_EQ(chessGame.getPieceAt(7,0),'N');
+}
+
+TEST_F(chessBoardTest, whitePawnCantPromoteToKingNorPawn){
+  chessGame.putPiece(6,0,'P');
+  chessGame.movePiece(6,0,7,0);
+  ASSERT_ANY_THROW(chessGame.choosePromotion('K'));
 
 }
+
+TEST_F(chessBoardTest, blackPawnPromotion){
+  simpleWhitePawnMove();
+  chessGame.putPiece(1,0,'p');
+  chessGame.movePiece(1,0,0,0);
+  chessGame.choosePromotion('Q');
+  ASSERT_EQ(chessGame.getPieceAt(0,0),'q');
+}
+
+
+//TEST_F(chessBoardTest, whiteCanCastleKingSide){
+//  chessGame.putPiece(0,0,'r');
+//  chessGame.movePiece(0,3,0,1);
+//  ASSERT_EQ(chessGame.getPieceAt(0,2),'K');
+//  ASSERT_EQ(chessGame.getPieceAt(0,3),'R');
+//}
+
+

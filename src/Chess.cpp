@@ -10,6 +10,7 @@ using namespace  std;
 Chess::Chess() {
   board = ChessBoard();
   turn = 'w';
+
 }
 
 void Chess::startGame(){
@@ -114,6 +115,10 @@ void Chess::putPiece(int row, int column, char piece) {
 
 }
 
+void Chess::choosePromotion(char choosenPiece) {
+  board.choosePromotion(choosenPiece);
+}
+
 
 ChessBoard::ChessBoard() {
   for(int i = 0; i < 8; i++){
@@ -121,6 +126,7 @@ ChessBoard::ChessBoard() {
       board[i][j] = make_shared<NullPiece>();
     }
   }
+  promoted = false;
 }
 
 void ChessBoard::setUpPieces() {
@@ -149,6 +155,9 @@ void ChessBoard::setUpPieces() {
 
 
 void ChessBoard::movePiece(int initialRow, int initialColumn, int finishRow, int finishColumn) {
+  if(promoted){
+    throw invalid_argument("The other player must choose a promotion piece first");
+  }
   if(initialRow == finishRow && initialColumn == finishColumn){
     throw invalid_argument("The initial position and the final position are the same");
   }
@@ -228,7 +237,45 @@ pair<int,int> ChessBoard::getKingPosition(char color) {
       }
     }
   }
-  throw invalid_argument("Really? There is no white king");
+  throw invalid_argument("Really? There is no king");
+}
+
+void ChessBoard::promotePawn(int row, int column) {
+//  if(row != 0 && row != 7){
+//    throw invalid_argument("Should not happen1");
+//  }
+//  if(board[row-1][column]->getPiece() != 'P' && board[row+1][column]->getPiece() != 'p'){
+//    throw invalid_argument("Should not happen2");
+//  }
+  promoted = true;
+  promotionRow = row;
+  promotionColumn = column;
+}
+
+void ChessBoard::choosePromotion(char choosenPiece) {
+  if(!promoted){
+    throw invalid_argument("Should not happen3");
+  }
+  if(promotionRow != 0 && promotionRow != 7){
+    throw invalid_argument("Should not happen4");
+  }
+  switch (choosenPiece) {
+    case 'Q':
+      board[promotionRow][promotionColumn] = make_shared<Queen>(board[promotionRow][promotionColumn]->getColor());
+      break;
+    case 'R':
+      board[promotionRow][promotionColumn] = make_shared<Rook>(board[promotionRow][promotionColumn]->getColor());
+      break;
+    case 'B':
+      board[promotionRow][promotionColumn] = make_shared<Bishop>(board[promotionRow][promotionColumn]->getColor());
+      break;
+    case 'N':
+      board[promotionRow][promotionColumn] = make_shared<Knight>(board[promotionRow][promotionColumn]->getColor());
+      break;
+    default:
+      throw invalid_argument("Invalid promotion piece");
+  }
+  promoted = false;
 }
 
 char NullPiece::getPiece() const {
@@ -236,7 +283,7 @@ char NullPiece::getPiece() const {
 }
 
 void NullPiece::assertCanMove(ChessBoard *board, int initialRow, int initialColumn, int finishRow, int finishColumn) {
-  throw invalid_argument("There is no piece in the initial position");
+  throw invalid_argument("There is no piece");
 }
 
 bool NullPiece::isWhitePiece(){
@@ -245,6 +292,10 @@ bool NullPiece::isWhitePiece(){
 
 bool NullPiece::isBlackPiece(){
   return false;
+}
+
+char NullPiece::getColor() const {
+  throw("There is no piece");
 }
 
 
@@ -280,6 +331,9 @@ void WhitePawn::assertCanMove(ChessBoard *board, int initialRow, int initialColu
   if(board->getPieceAt(finishRow,finishColumn)->getPiece() != ' ' && not isCapture){
     throw invalid_argument("Pawn cant capture that way");
   }
+  if(finishRow == 7){
+    board->promotePawn(finishRow, finishColumn);
+  }
 }
 
 bool WhitePawn::isWhitePiece() {
@@ -288,6 +342,10 @@ bool WhitePawn::isWhitePiece() {
 
 bool WhitePawn::isBlackPiece() {
   return false;
+}
+
+char WhitePawn::getColor() const {
+  return 'w';
 }
 
 char BlackPawn::getPiece() const {
@@ -327,6 +385,9 @@ void BlackPawn::assertCanMove(ChessBoard *board, int initialRow, int initialColu
   if(board->getPieceAt(finishRow, finishColumn)->getPiece() != ' ' && not isCapture){
     throw invalid_argument("Pawn cant capture that way");
   }
+  if(finishRow == 0){
+    board->promotePawn(finishRow, finishColumn);
+  }
 }
 
 bool BlackPawn::isWhitePiece() {
@@ -335,6 +396,10 @@ bool BlackPawn::isWhitePiece() {
 
 bool BlackPawn::isBlackPiece() {
   return true;
+}
+
+char BlackPawn::getColor() const {
+  return 'b';
 }
 
 
@@ -360,6 +425,10 @@ bool Knight::isBlackPiece() {
   return color == 'b';
 }
 
+char Knight::getColor() const {
+  return color;
+}
+
 char Bishop::getPiece() const {
   return color == 'w' ? 'B' : 'b';
 }
@@ -383,6 +452,10 @@ bool Bishop::isWhitePiece() {
 
 bool Bishop::isBlackPiece() {
   return color == 'b';
+}
+
+char Bishop::getColor() const {
+  return color;
 }
 
 char Rook::getPiece() const {
@@ -414,9 +487,14 @@ bool Rook::isBlackPiece() {
   return color == 'b';
 }
 
+char Rook::getColor() const {
+  return color;
+}
+
 char Queen::getPiece() const {
   return color == 'w' ? 'Q' : 'q';
 }
+
 
 void Queen::assertCanMove(ChessBoard *board, int initialRow, int initialColumn, int finishRow, int finishColumn) {
   if(initialRow == finishRow || initialColumn == finishColumn){
@@ -434,14 +512,22 @@ bool Queen::isBlackPiece() {
   return color == 'b';
 }
 
+char Queen::getColor() const {
+  return color;
+}
+
 char King::getPiece() const {
   return color == 'w' ? 'K' : 'k';
 }
 
 void King::assertCanMove(ChessBoard *board, int initialRow, int initialColumn, int finishRow, int finishColumn) {
+//  if(initialRow == finishRow  && initialColumn - finishColumn == 2 && board->getPieceAt(0,0)->getPiece() == 'R'){
+//    board->shortCastle(color);
+//  }
   if(abs(initialRow - finishRow) > 1 || abs(initialColumn - finishColumn) > 1){
     throw invalid_argument("King cant move that far");
   }
+
 }
 
 bool King::isWhitePiece() {
@@ -451,3 +537,8 @@ bool King::isWhitePiece() {
 bool King::isBlackPiece() {
   return color == 'b';
 }
+
+char King::getColor() const {
+  return color;
+}
+

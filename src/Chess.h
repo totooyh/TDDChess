@@ -30,6 +30,12 @@ public:
 
     virtual bool isBlackPiece() = 0;
 
+    virtual char getColor() const = 0;
+
+private:
+    char color;
+
+
 };
 
 class NullPiece : public ChessPiece {
@@ -45,6 +51,8 @@ public:
     bool isWhitePiece() override;
 
     bool isBlackPiece() override;
+
+    char getColor() const override;
 };
 
 class WhitePawn : public ChessPiece {
@@ -60,6 +68,8 @@ public:
     bool isWhitePiece() override;
 
     bool isBlackPiece() override;
+
+    char getColor() const override;
 };
 
 class BlackPawn : public ChessPiece {
@@ -75,6 +85,8 @@ public:
     bool isWhitePiece() override;
 
     bool isBlackPiece() override;
+
+    char getColor() const override;
 private:
 
 };
@@ -92,6 +104,8 @@ public:
     bool isWhitePiece() override;
 
     bool isBlackPiece() override;
+
+    char getColor() const override;
 
 private:
     char color;
@@ -112,6 +126,8 @@ public:
 
     bool isBlackPiece() override;
 
+    char getColor() const override;
+
 private:
     char color;
 };
@@ -130,6 +146,8 @@ public:
     bool isWhitePiece() override;
 
     bool isBlackPiece() override;
+
+    char getColor() const override;
 
 private:
     char color;
@@ -150,6 +168,10 @@ public:
 
     bool isBlackPiece() override;
 
+    char getColor() const override;
+
+
+
 private:
     char color;
 };
@@ -168,6 +190,8 @@ public:
     bool isWhitePiece() override;
 
     bool isBlackPiece() override;
+
+    char getColor() const override;
 
 private:
     char color;
@@ -192,10 +216,17 @@ public:
 
     void setUpPieces();
 
+    void promotePawn(int row, int column);
+
+    void choosePromotion(char choosenPiece);
+
 private:
     shared_ptr<ChessPiece> board[8][8];
 
     pair<int,int> getKingPosition(char color);
+    bool promoted;
+    int promotionRow;
+    int promotionColumn;
 
 };
 
@@ -222,10 +253,12 @@ public:
     friend class ChessBoard;
 
 
+    void choosePromotion(char choosenPiece);
 
 private:
     ChessBoard board;
     char turn;
+
 
     void changeTurn();
 

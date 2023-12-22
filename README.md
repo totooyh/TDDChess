@@ -1,6 +1,5 @@
 #TODO
 - Pawn ampassent
-- Pawn promotion
 - Castling
 - Check-Mate
 - ChessGame per se
