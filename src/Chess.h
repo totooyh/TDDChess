@@ -75,6 +75,8 @@ public:
     bool isWhitePiece() override;
 
     bool isBlackPiece() override;
+private:
+
 };
 class Knight : public ChessPiece {
 public:
@@ -188,6 +190,8 @@ public:
 
     bool isInCheck(char color);
 
+    void setUpPieces();
+
 private:
     shared_ptr<ChessPiece> board[8][8];
 
@@ -201,6 +205,10 @@ public:
 
     ~Chess() = default;
 
+    void startGame();
+
+    void putPiece(int row, int column, char piece);
+
     char getPieceAt(int row, int column);
 
     void movePiece(int initialRow, int initialColumn, int finishRow, int finishColumn);
@@ -212,6 +220,9 @@ public:
     void printBoard();
 
     friend class ChessBoard;
+
+
+
 private:
     ChessBoard board;
     char turn;

@@ -12,6 +12,10 @@ Chess::Chess() {
   turn = 'w';
 }
 
+void Chess::startGame(){
+  board.setUpPieces();
+}
+
 char Chess::getPieceAt(int row, int column) {
     return (board.getPieceAt(row, column))->getPiece();
 }
@@ -24,14 +28,14 @@ void Chess::movePiece(int initialRow, int initialColumn, int finishRow, int fini
       throw invalid_argument("Cant move opponent pieces");
     }
     if(toFallPieceRN->isWhitePiece()){
-      throw invalid_argument("Cant move to a cell with a piece of the same color");
+      throw invalid_argument("Cant eat your own piece");
     }
   }else{
     if(piece->isWhitePiece()){
       throw invalid_argument("Cant move opponent pieces");
     }
     if(toFallPieceRN->isBlackPiece()){
-      throw invalid_argument("Cant move to a cell with a piece of the same color");
+      throw invalid_argument("Cant eat your own piece");
     }
   }
 
@@ -79,6 +83,37 @@ bool Chess::isInBadCheck() {
   }
 }
 
+void Chess::putPiece(int row, int column, char piece) {
+  if(piece == 'p'){
+    board.setPiece(row, column, make_shared<BlackPawn>());
+  }else if(piece == 'P'){
+    board.setPiece(row, column, make_shared<WhitePawn>());
+  }else if(piece == 'r'){
+    board.setPiece(row, column, make_shared<Rook>('b'));
+  }else if(piece == 'R'){
+    board.setPiece(row, column, make_shared<Rook>('w'));
+  }else if(piece == 'n'){
+    board.setPiece(row, column, make_shared<Knight>('b'));
+  }else if(piece == 'N'){
+    board.setPiece(row, column, make_shared<Knight>('w'));
+  }else if(piece == 'b'){
+    board.setPiece(row, column, make_shared<Bishop>('b'));
+  }else if(piece == 'B'){
+    board.setPiece(row, column, make_shared<Bishop>('w'));
+  }else if(piece == 'q'){
+    board.setPiece(row, column, make_shared<Queen>('b'));
+  }else if(piece == 'Q'){
+    board.setPiece(row, column, make_shared<Queen>('w'));
+  }else if(piece == 'k'){
+    board.setPiece(row, column, make_shared<King>('b'));
+  }else if(piece == 'K'){
+    board.setPiece(row, column, make_shared<King>('w'));
+  }else{
+    board.setPiece(row, column, make_shared<NullPiece>());
+  }
+
+}
+
 
 ChessBoard::ChessBoard() {
   for(int i = 0; i < 8; i++){
@@ -86,7 +121,9 @@ ChessBoard::ChessBoard() {
       board[i][j] = make_shared<NullPiece>();
     }
   }
+}
 
+void ChessBoard::setUpPieces() {
   for(int i = 0; i < 8; i++){
     board[1][i] = make_shared<WhitePawn>();
     board[6][i] = make_shared<BlackPawn>();
@@ -108,11 +145,8 @@ ChessBoard::ChessBoard() {
   board[7][5] = make_shared<Bishop>('b');
   board[7][6] = make_shared<Knight>('b');
   board[7][7] = make_shared<Rook>('b');
-
-
-
-
 }
+
 
 void ChessBoard::movePiece(int initialRow, int initialColumn, int finishRow, int finishColumn) {
   if(initialRow == finishRow && initialColumn == finishColumn){
@@ -196,7 +230,6 @@ pair<int,int> ChessBoard::getKingPosition(char color) {
   }
   throw invalid_argument("Really? There is no white king");
 }
-
 
 char NullPiece::getPiece() const {
   return ' ';
