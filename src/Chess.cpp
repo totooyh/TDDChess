@@ -183,7 +183,7 @@ bool ChessBoard::isInCheck(char color) {
 }
 
 pair<int,int> ChessBoard::getKingPosition(char color) {
-  //esto se puede mejorar trackeando la position del rey en todo momento
+  //this can be optimized by keeping track of the king position
   for(int i = 0; i < 8; i++){
     for(int j = 0; j < 8; j++){
       if(color == 'w' && board[i][j]->getPiece() == 'K'){
