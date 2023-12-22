@@ -231,4 +231,17 @@ TEST_F(chessBoardTest,kingCanMoveOnlyOneSquareInAnyDirection){
   ASSERT_EQ(chessGame.getPieceAt(1,3),'K');
 }
 
+TEST_F(chessBoardTest,blackKingCantMoveAndFinishInCheck){
+  chessGame.movePiece(1,3,3,3);
+  chessGame.movePiece(6,2,5,2);
+  chessGame.movePiece(0,4,4,0);
+  ASSERT_ANY_THROW(chessGame.movePiece(5,2,4,3));
+}
 
+TEST_F(chessBoardTest,whiteCantMoveAndFinishInCheck){
+  chessGame.movePiece(1,2,3,2);
+  chessGame.movePiece(6,3,5,3);
+  simpleWhitePawnMove();
+  chessGame.movePiece(7,4,3,0);
+  ASSERT_ANY_THROW(chessGame.movePiece(1,5,2,5));
+}

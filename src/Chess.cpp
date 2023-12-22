@@ -17,24 +17,37 @@ char Chess::getPieceAt(int row, int column) {
 }
 
 void Chess::movePiece(int initialRow, int initialColumn, int finishRow, int finishColumn) {
+  shared_ptr<ChessPiece> piece = board.getPieceAt(initialRow, initialColumn);
+  shared_ptr<ChessPiece> toFallPieceRN = board.getPieceAt(finishRow, finishColumn);
   if(isWhiteTurn()){
-    if(board.getPieceAt(initialRow, initialColumn)->isBlackPiece()){
+    if(piece->isBlackPiece()){
       throw invalid_argument("Cant move opponent pieces");
     }
-    if(board.getPieceAt(finishRow, finishColumn)->isWhitePiece()){
+    if(toFallPieceRN->isWhitePiece()){
       throw invalid_argument("Cant move to a cell with a piece of the same color");
     }
   }else{
-    if(board.getPieceAt(initialRow, initialColumn)->isWhitePiece()){
+    if(piece->isWhitePiece()){
       throw invalid_argument("Cant move opponent pieces");
     }
-    if(board.getPieceAt(finishRow, finishColumn)->isBlackPiece()){
+    if(toFallPieceRN->isBlackPiece()){
       throw invalid_argument("Cant move to a cell with a piece of the same color");
     }
   }
 
   board.movePiece(initialRow, initialColumn, finishRow, finishColumn);
+  if(this->isInBadCheck()){
+    undoMove(initialRow, initialColumn, finishRow, finishColumn, toFallPieceRN);
+    throw invalid_argument("BRO! YOU ARE IN CHECK  WYD?");
+  }
   changeTurn();
+}
+
+void
+Chess::undoMove(int initialRow, int initialColumn, int finishRow, int finishColumn,
+                shared_ptr<ChessPiece> &eatenPiece) {
+  board.setPiece(initialRow, initialColumn, board.getPieceAt(finishRow, finishColumn));
+  board.setPiece(finishRow, finishColumn, eatenPiece);
 }
 
 bool Chess::isWhiteTurn() const {
@@ -56,6 +69,14 @@ void Chess::changeTurn() {
 
 void Chess::printBoard() {
   board.printBoard();
+}
+
+bool Chess::isInBadCheck() {
+  if(turn == 'w'){
+    return board.isInCheck('w');
+}else{
+    return board.isInCheck('b');
+  }
 }
 
 
@@ -110,16 +131,72 @@ shared_ptr<ChessPiece> ChessBoard::getPieceAt(int row, int column) {
 }
 
 void ChessBoard::printBoard() {
+  //print reverse board
+
+
+
   cout << "  0 1 2 3 4 5 6 7" << endl;
-  for(int i = 0; i < 8; i++){
+  for(int i = 7; i >= 0; i--){
     cout << i << " ";
     for(int j = 0; j < 8; j++){
       cout << board[i][j]->getPiece() << " ";
     }
     cout << endl;
   }
-
 }
+
+void ChessBoard::setPiece(int row, int column, shared_ptr<ChessPiece> piece) {
+  board[row][column] = piece;
+}
+
+bool ChessBoard::isInCheck(char color) {
+  pair<int,int> kingPosition = getKingPosition(color);
+  if(color == 'w'){
+    for(int i = 0; i < 8; i++){
+      for(int j = 0; j < 8; j++){
+        if(board[i][j]->isBlackPiece()){
+          try{
+            board[i][j]->assertCanMove(this, i, j, kingPosition.first, kingPosition.second);
+            return true;
+          }catch (invalid_argument &e){
+            //do nothing
+          }
+        }
+      }
+    }
+    return false;
+  }else{
+    for(int i = 0; i < 8; i++){
+      for(int j = 0; j < 8; j++){
+        if(board[i][j]->isWhitePiece()){
+          try{
+            board[i][j]->assertCanMove(this, i, j, kingPosition.first, kingPosition.second);
+            return true;
+          }catch (invalid_argument &e){
+            //do nothing
+          }
+        }
+      }
+    }
+    return false;
+  }
+}
+
+pair<int,int> ChessBoard::getKingPosition(char color) {
+  //esto se puede mejorar trackeando la position del rey en todo momento
+  for(int i = 0; i < 8; i++){
+    for(int j = 0; j < 8; j++){
+      if(color == 'w' && board[i][j]->getPiece() == 'K'){
+        return make_pair(i,j);
+      }
+      if(color == 'b' && board[i][j]->getPiece() == 'k'){
+        return make_pair(i,j);
+      }
+    }
+  }
+  throw invalid_argument("Really? There is no white king");
+}
+
 
 char NullPiece::getPiece() const {
   return ' ';
@@ -188,17 +265,14 @@ void BlackPawn::assertCanMove(ChessBoard *board, int initialRow, int initialColu
   bool isCapture = false;
   if(initialRow - finishRow > 2){
     throw invalid_argument("Pawn cant move that far");
-
   }
 
   if(finishRow > initialRow){
     throw invalid_argument("Pawn cant move backwards");
-
   }
 
   if(initialRow != 6 && initialRow - finishRow >= 2){
     throw invalid_argument("Pawn can only move 2 spaces in the first move");
-
   }
 
   if(initialRow == 6 && initialRow - finishRow == 2){

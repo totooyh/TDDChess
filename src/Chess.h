@@ -183,8 +183,16 @@ public:
     shared_ptr<ChessPiece> getPieceAt(int row, int column);
 
     void printBoard();
+
+    void setPiece(int row, int column, shared_ptr<ChessPiece> piece);
+
+    bool isInCheck(char color);
+
 private:
     shared_ptr<ChessPiece> board[8][8];
+
+    pair<int,int> getKingPosition(char color);
+
 };
 
 class Chess {
@@ -209,6 +217,11 @@ private:
     char turn;
 
     void changeTurn();
+
+    void
+    undoMove(int initialRow, int initialColumn, int finishRow, int finishColumn, shared_ptr<ChessPiece> &eatenPiece);
+
+    bool isInBadCheck();
 };
 
 
