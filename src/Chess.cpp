@@ -54,6 +54,9 @@ void Chess::changeTurn() {
 
 }
 
+void Chess::printBoard() {
+  board.printBoard();
+}
 
 
 ChessBoard::ChessBoard() {
@@ -67,23 +70,25 @@ ChessBoard::ChessBoard() {
     board[1][i] = make_shared<WhitePawn>();
     board[6][i] = make_shared<BlackPawn>();
   }
-  board[0][0] = make_shared<WhiteRook>();
-  board[0][1] = make_shared<WhiteKnight>();
-  board[0][2] = make_shared<WhiteBishop>();
-  board[0][3] = make_shared<WhiteQueen>();
-  board[0][4] = make_shared<WhiteKing>();
-  board[0][5] = make_shared<WhiteBishop>();
-  board[0][6] = make_shared<WhiteKnight>();
-  board[0][7] = make_shared<WhiteRook>();
+  board[0][0] = make_shared<Rook>('w');
+  board[0][1] = make_shared<Knight>('w');
+  board[0][2] = make_shared<Bishop>('w');
+  board[0][3] = make_shared<King>('w');
+  board[0][4] = make_shared<Queen>('w');
+  board[0][5] = make_shared<Bishop>('w');
+  board[0][6] = make_shared<Knight>('w');
+  board[0][7] = make_shared<Rook>('w');
 
-  board[7][0] = make_shared<BlackRook>();
-  board[7][1] = make_shared<BlackKnight>();
-  board[7][2] = make_shared<BlackBishop>();
-  board[7][3] = make_shared<BlackQueen>();
-  board[7][4] = make_shared<BlackKing>();
-  board[7][5] = make_shared<BlackBishop>();
-  board[7][6] = make_shared<BlackKnight>();
-  board[7][7] = make_shared<BlackRook>();
+  board[7][0] = make_shared<Rook>('b');
+  board[7][1] = make_shared<Knight>('b');
+  board[7][2] = make_shared<Bishop>('b');
+  board[7][3] = make_shared<King>('b');
+  board[7][4] = make_shared<Queen>('b');
+  board[7][5] = make_shared<Bishop>('b');
+  board[7][6] = make_shared<Knight>('b');
+  board[7][7] = make_shared<Rook>('b');
+
+
 
 
 }
@@ -102,6 +107,18 @@ void ChessBoard::movePiece(int initialRow, int initialColumn, int finishRow, int
 
 shared_ptr<ChessPiece> ChessBoard::getPieceAt(int row, int column) {
   return board[row][column];
+}
+
+void ChessBoard::printBoard() {
+  cout << "  0 1 2 3 4 5 6 7" << endl;
+  for(int i = 0; i < 8; i++){
+    cout << i << " ";
+    for(int j = 0; j < 8; j++){
+      cout << board[i][j]->getPiece() << " ";
+    }
+    cout << endl;
+  }
+
 }
 
 char NullPiece::getPiece() const {
@@ -214,175 +231,116 @@ bool BlackPawn::isBlackPiece() {
 }
 
 
-char WhiteKnight::getPiece() const {
-  return 'N';
+char Knight::getPiece() const {
+  return color == 'w' ? 'N' : 'n';
 }
 
-void WhiteKnight::assertCanMove(ChessBoard *board, int initialRow, int initialColumn, int finishRow, int finishColumn) {
-  if(abs(initialRow-finishRow) == 2 && abs(initialColumn-finishColumn) == 1){
+void Knight::assertCanMove(ChessBoard *board, int initialRow, int initialColumn, int finishRow, int finishColumn) {
+  if(abs(initialRow - finishRow) == 2 && abs(initialColumn - finishColumn) == 1){
     return;
   }
-  if(abs(initialRow-finishRow) == 1 && abs(initialColumn-finishColumn) == 2){
-    return;
-  }
-  throw invalid_argument("Knight cant move that way");
-}
-
-bool WhiteKnight::isWhitePiece() {
-  return true;
-}
-
-bool WhiteKnight::isBlackPiece() {
-  return false;
-}
-
-char BlackKnight::getPiece() const {
-  return 'n';
-}
-
-void BlackKnight::assertCanMove(ChessBoard *board, int initialRow, int initialColumn, int finishRow, int finishColumn) {
-  if(abs(initialRow-finishRow) == 2 && abs(initialColumn-finishColumn) == 1){
-    return;
-  }
-  if(abs(initialRow-finishRow) == 1 && abs(initialColumn-finishColumn) == 2){
+  if(abs(initialRow - finishRow) == 1 && abs(initialColumn - finishColumn) == 2){
     return;
   }
   throw invalid_argument("Knight cant move that way");
 }
 
-bool BlackKnight::isWhitePiece() {
-  return false;
+bool Knight::isWhitePiece() {
+  return color == 'w';
 }
 
-bool BlackKnight::isBlackPiece() {
-  return true;
+bool Knight::isBlackPiece() {
+  return color == 'b';
 }
 
-char WhiteBishop::getPiece() const {
-  return 'B';
+char Bishop::getPiece() const {
+  return color == 'w' ? 'B' : 'b';
 }
 
-void WhiteBishop::assertCanMove(ChessBoard *board, int initialRow, int initialColumn, int finishRow, int finishColumn) {
-
+void Bishop::assertCanMove(ChessBoard *board, int initialRow, int initialColumn, int finishRow, int finishColumn) {
+  if(abs(initialRow - finishRow) != abs(initialColumn - finishColumn)){
+    throw invalid_argument("Bishop cant move that way");
+  }
+  int rowDirection = (finishRow - initialRow) / abs(finishRow - initialRow);
+  int columnDirection = (finishColumn - initialColumn) / abs(finishColumn - initialColumn);
+  for(int i = 1; i < abs(initialRow - finishRow); i++){
+    if(board->getPieceAt(initialRow + i * rowDirection, initialColumn + i * columnDirection)->getPiece() != ' '){
+      throw invalid_argument("Bishop cant jump pieces");
+    }
+  }
 }
 
-bool WhiteBishop::isWhitePiece() {
-  return true;
+bool Bishop::isWhitePiece() {
+  return color == 'w';
 }
 
-bool WhiteBishop::isBlackPiece() {
-  return false;
+bool Bishop::isBlackPiece() {
+  return color == 'b';
 }
 
-char BlackBishop::getPiece() const {
-  return 'b';
+char Rook::getPiece() const {
+  return color == 'w' ? 'R' : 'r';
 }
 
-void BlackBishop::assertCanMove(ChessBoard *board, int initialRow, int initialColumn, int finishRow, int finishColumn) {
-
+void Rook::assertCanMove(ChessBoard *board, int initialRow, int initialColumn, int finishRow, int finishColumn) {
+  if(initialRow != finishRow && initialColumn != finishColumn){
+    throw invalid_argument("Rook cant move diagonally");
+  }
+  int direction;
+  if(initialRow == finishRow){
+    direction = (finishColumn - initialColumn) / abs(finishColumn - initialColumn);
+  }else{
+    direction = (finishRow - initialRow) / abs(finishRow - initialRow);
+  }
+  for(int i = 1; i < abs(initialColumn - finishColumn); i++){
+    if(board->getPieceAt(initialRow, initialColumn + i * direction)->getPiece() != ' '){
+      throw invalid_argument("Rook cant jump pieces");
+    }
+  }
 }
 
-bool BlackBishop::isWhitePiece() {
-  return false;
+bool Rook::isWhitePiece() {
+  return color == 'w';
 }
 
-bool BlackBishop::isBlackPiece() {
-  return true;
+bool Rook::isBlackPiece() {
+  return color == 'b';
 }
 
-
-char WhiteRook::getPiece() const {
-  return 'R';
+char Queen::getPiece() const {
+  return color == 'w' ? 'Q' : 'q';
 }
 
-void WhiteRook::assertCanMove(ChessBoard *board, int initialRow, int initialColumn, int finishRow, int finishColumn) {
-
+void Queen::assertCanMove(ChessBoard *board, int initialRow, int initialColumn, int finishRow, int finishColumn) {
+  if(initialRow == finishRow || initialColumn == finishColumn){
+    Rook('b').assertCanMove(board, initialRow, initialColumn, finishRow, finishColumn);
+  }else{
+    Bishop('b').assertCanMove(board, initialRow, initialColumn, finishRow, finishColumn);
+  }
 }
 
-bool WhiteRook::isWhitePiece() {
-  return true;
+bool Queen::isWhitePiece() {
+  return color == 'w';
 }
 
-bool WhiteRook::isBlackPiece() {
-  return false;
+bool Queen::isBlackPiece() {
+  return color == 'b';
 }
 
-char BlackRook::getPiece() const {
-  return 'r';
+char King::getPiece() const {
+  return color == 'w' ? 'K' : 'k';
 }
 
-void BlackRook::assertCanMove(ChessBoard *board, int initialRow, int initialColumn, int finishRow, int finishColumn) {
-
+void King::assertCanMove(ChessBoard *board, int initialRow, int initialColumn, int finishRow, int finishColumn) {
+  if(abs(initialRow - finishRow) > 1 || abs(initialColumn - finishColumn) > 1){
+    throw invalid_argument("King cant move that far");
+  }
 }
 
-bool BlackRook::isWhitePiece() {
-  return false;
+bool King::isWhitePiece() {
+  return color == 'w';
 }
 
-bool BlackRook::isBlackPiece() {
-  return true;
-}
-
-char WhiteQueen::getPiece() const {
-  return 'Q';
-}
-
-void WhiteQueen::assertCanMove(ChessBoard *board, int initialRow, int initialColumn, int finishRow, int finishColumn) {
-
-}
-
-bool WhiteQueen::isWhitePiece() {
-  return true;
-}
-
-bool WhiteQueen::isBlackPiece() {
-  return false;
-}
-
-char BlackQueen::getPiece() const {
-  return 'q';
-}
-
-void BlackQueen::assertCanMove(ChessBoard *board, int initialRow, int initialColumn, int finishRow, int finishColumn) {
-
-}
-
-bool BlackQueen::isWhitePiece() {
-  return false;
-}
-
-bool BlackQueen::isBlackPiece() {
-  return true;
-}
-
-char WhiteKing::getPiece() const {
-  return 'K';
-}
-
-void WhiteKing::assertCanMove(ChessBoard *board, int initialRow, int initialColumn, int finishRow, int finishColumn) {
-
-}
-
-bool WhiteKing::isWhitePiece() {
-  return true;
-}
-
-bool WhiteKing::isBlackPiece() {
-  return false;
-}
-
-char BlackKing::getPiece() const {
-  return 'k';
-}
-
-void BlackKing::assertCanMove(ChessBoard *board, int initialRow, int initialColumn, int finishRow, int finishColumn) {
-
-}
-
-bool BlackKing::isWhitePiece() {
-  return false;
-}
-
-bool BlackKing::isBlackPiece() {
-  return true;
+bool King::isBlackPiece() {
+  return color == 'b';
 }

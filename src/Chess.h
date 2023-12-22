@@ -76,71 +76,12 @@ public:
 
     bool isBlackPiece() override;
 };
-class WhiteKnight : public ChessPiece {
+class Knight : public ChessPiece {
 public:
-    WhiteKnight() = default;
 
-    ~WhiteKnight() = default;
+    Knight(char color): color(color) {};
 
-    char getPiece() const override;
-
-    void assertCanMove(ChessBoard *board, int initialRow, int initialColumn, int finishRow, int finishColumn) override;
-
-    bool isWhitePiece() override;
-
-    bool isBlackPiece() override;
-};
-
-class BlackKnight : public ChessPiece {
-public:
-    BlackKnight() = default;
-
-    ~BlackKnight() = default;
-
-    char getPiece() const override;
-
-    void assertCanMove(ChessBoard *board, int initialRow, int initialColumn, int finishRow, int finishColumn) override;
-
-    bool isWhitePiece() override;
-
-    bool isBlackPiece() override;
-};
-
-class WhiteBishop : public ChessPiece {
-public:
-    WhiteBishop() = default;
-
-    ~WhiteBishop() = default;
-
-    char getPiece() const override;
-
-    void assertCanMove(ChessBoard *board, int initialRow, int initialColumn, int finishRow, int finishColumn) override;
-
-    bool isWhitePiece() override;
-
-    bool isBlackPiece() override;
-};
-
-class BlackBishop : public ChessPiece {
-public:
-    BlackBishop() = default;
-
-    ~BlackBishop() = default;
-
-    char getPiece() const override;
-
-    void assertCanMove(ChessBoard *board, int initialRow, int initialColumn, int finishRow, int finishColumn) override;
-
-    bool isWhitePiece() override;
-
-    bool isBlackPiece() override;
-};
-
-class WhiteRook : public ChessPiece {
-public:
-    WhiteRook() = default;
-
-    ~WhiteRook() = default;
+    ~Knight() = default;
 
     char getPiece() const override;
 
@@ -150,13 +91,16 @@ public:
 
     bool isBlackPiece() override;
 
+private:
+    char color;
 };
 
-class BlackRook : public ChessPiece {
+class Bishop : public ChessPiece {
 public:
-    BlackRook() = default;
 
-    ~BlackRook() = default;
+    Bishop(char color): color(color) {};
+
+    ~Bishop() = default;
 
     char getPiece() const override;
 
@@ -165,68 +109,67 @@ public:
     bool isWhitePiece() override;
 
     bool isBlackPiece() override;
+
+private:
+    char color;
 };
 
-class WhiteQueen : public ChessPiece {
+class Rook : public ChessPiece {
 public:
-    WhiteQueen() = default;
 
-    ~WhiteQueen() = default;
+    Rook(char color): color(color) {};
+
+    ~Rook() = default;
 
     char getPiece() const override;
 
-    void assertCanMove(ChessBoard *board, int initialRow, int initialColumn, int finishRow, int finishColumn);
+    void assertCanMove(ChessBoard *board, int initialRow, int initialColumn, int finishRow, int finishColumn) override;
 
     bool isWhitePiece() override;
 
     bool isBlackPiece() override;
+
+private:
+    char color;
 };
 
-class BlackQueen : public ChessPiece {
+class Queen : public ChessPiece {
 public:
-    BlackQueen() = default;
 
-    ~BlackQueen() = default;
+    Queen(char color): color(color) {};
+
+    ~Queen() = default;
 
     char getPiece() const override;
 
-    void assertCanMove(ChessBoard *board, int initialRow, int initialColumn, int finishRow, int finishColumn);
+    void assertCanMove(ChessBoard *board, int initialRow, int initialColumn, int finishRow, int finishColumn) override;
 
     bool isWhitePiece() override;
 
     bool isBlackPiece() override;
+
+private:
+    char color;
 };
 
-class WhiteKing : public ChessPiece {
+class King : public ChessPiece {
 public:
-    WhiteKing() = default;
 
-    ~WhiteKing() = default;
+    King(char color): color(color) {};
+
+    ~King() = default;
 
     char getPiece() const override;
 
-    void assertCanMove(ChessBoard *board, int initialRow, int initialColumn, int finishRow, int finishColumn);
+    void assertCanMove(ChessBoard *board, int initialRow, int initialColumn, int finishRow, int finishColumn) override;
 
     bool isWhitePiece() override;
 
     bool isBlackPiece() override;
+
+private:
+    char color;
 };
-
-class BlackKing : public ChessPiece {
-public:
-    BlackKing() = default;
-
-    ~BlackKing() = default;
-
-    char getPiece() const override;
-
-    void assertCanMove(ChessBoard *board, int initialRow, int initialColumn, int finishRow, int finishColumn);
-
-    bool isWhitePiece() override;
-
-    bool isBlackPiece() override;
-};
-
 
 
 class ChessBoard {
@@ -238,6 +181,8 @@ public:
     void movePiece(int initialRow, int initialColumn, int finishRow, int finishColumn);
 
     shared_ptr<ChessPiece> getPieceAt(int row, int column);
+
+    void printBoard();
 private:
     shared_ptr<ChessPiece> board[8][8];
 };
@@ -255,6 +200,8 @@ public:
     bool isWhiteTurn() const;
 
     bool isBlackTurn() const;
+
+    void printBoard();
 
     friend class ChessBoard;
 private:
