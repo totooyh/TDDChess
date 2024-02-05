@@ -602,15 +602,21 @@ void Rook::assertCanMove(ChessBoard *board, int initialRow, int initialColumn, i
   }
   int direction;
   if (initialRow == finishRow) {
-    direction = (finishColumn - initialColumn) / abs(finishColumn - initialColumn);
+    direction = (finishColumn - initialColumn) / abs(finishColumn - initialColumn);//1 or -1
+    for (int i = 1; i < abs(initialColumn - finishColumn); i++) {
+      if (board->getPieceAt(initialRow, initialColumn + i * direction)->getPiece() != ' ') {
+        throw invalid_argument("Rook cant jump pieces");
+      }
+    }
   } else {
-    direction = (finishRow - initialRow) / abs(finishRow - initialRow);
-  }
-  for (int i = 1; i < abs(initialColumn - finishColumn); i++) {
-    if (board->getPieceAt(initialRow, initialColumn + i * direction)->getPiece() != ' ') {
-      throw invalid_argument("Rook cant jump pieces");
+    direction = (finishRow - initialRow) / abs(finishRow - initialRow);//1 or -1
+    for (int i = 1; i < abs(initialRow - finishRow); i++) {
+      if (board->getPieceAt(initialRow, initialColumn + i * direction)->getPiece() != ' ') {
+        throw invalid_argument("Rook cant jump pieces");
+      }
     }
   }
+
 }
 
 bool Rook::isWhitePiece() {
