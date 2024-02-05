@@ -40,8 +40,10 @@ public:
 
     virtual vector<string> possibleMoves(ChessBoard *board, int initialRow, int initialColumn) = 0;
 
+    virtual bool isPromoting(int row) = 0;
+
 private:
-    char color;
+    char color{};
 
 };
 
@@ -49,23 +51,24 @@ class TangibleChessPiece : public ChessPiece {
 public:
     TangibleChessPiece() = default;
 
-    virtual ~TangibleChessPiece() = default;
+    ~TangibleChessPiece() override = default;
 
-    virtual char getPiece() const = 0;
+    char getPiece() const override = 0;
 
-    virtual void
-    assertCanMove(ChessBoard *board, int initialRow, int initialColumn, int finishRow, int finishColumn) = 0;
+    void assertCanMove(ChessBoard *board, int initialRow, int initialColumn, int finishRow, int finishColumn) override = 0;
 
-    virtual bool isWhitePiece() = 0;
+    bool isWhitePiece() override = 0;
 
-    virtual bool isBlackPiece() = 0;
+    bool isBlackPiece() override = 0;
 
     virtual char getColor() const = 0;
 
     vector<string> possibleMoves(ChessBoard *board, int initialRow, int initialColumn);
 
+    virtual bool isPromoting(int row) = 0;
+
 private:
-    char color;
+    char color{};
 };
 
 class NullPiece : public ChessPiece {
@@ -86,6 +89,8 @@ public:
 
     vector<string> possibleMoves(ChessBoard *board, int initialRow, int initialColumn) override;
 
+    bool isPromoting(int row) override;
+
 };
 
 class WhitePawn : public TangibleChessPiece {
@@ -104,6 +109,7 @@ public:
 
     char getColor() const override;
 
+    bool isPromoting(int row) override;
 };
 
 class BlackPawn : public TangibleChessPiece {
@@ -121,6 +127,8 @@ public:
     bool isBlackPiece() override;
 
     char getColor() const override;
+
+    bool isPromoting(int row) override;
 
 };
 
@@ -140,6 +148,8 @@ public:
     bool isBlackPiece() override;
 
     char getColor() const override;
+
+    bool isPromoting(int row)override;
 
 private:
     char color;
@@ -162,6 +172,8 @@ public:
 
     char getColor() const override;
 
+    bool isPromoting(int row) override;
+
 private:
     char color;
 };
@@ -182,6 +194,8 @@ public:
     bool isBlackPiece() override;
 
     char getColor() const override;
+
+    bool isPromoting(int row) override;
 
 private:
     char color;
@@ -204,6 +218,8 @@ public:
 
     char getColor() const override;
 
+    bool isPromoting(int row) override;
+
 private:
     char color;
 };
@@ -224,6 +240,8 @@ public:
     bool isBlackPiece() override;
 
     char getColor() const override;
+
+    bool isPromoting(int row) override;
 
 private:
     char color;
@@ -246,6 +264,8 @@ public:
 
     char getColor() const override;
 
+    bool isPromoting(int row) override;
+
 private:
     char color;
 };
@@ -257,10 +277,6 @@ public:
     ~ChessBoard() = default;
 
     void movePiece(int initialRow, int initialColumn, int finishRow, int finishColumn);
-
-    static void assertIsInsideChessBoard(int initialRow, int initialColumn);
-
-    static bool isOutsideChessBoard(int initialRow, int initialColumn);
 
     shared_ptr<ChessPiece> getPieceAt(int row, int column);
 
@@ -276,7 +292,9 @@ public:
 
     void choosePromotion(char choosenPiece);
 
-    bool isPromotionTime();
+    bool isPromotionTime() const;
+
+    bool canShortCastle(char color);
 
 private:
     shared_ptr<ChessPiece> board[8][8];
@@ -284,8 +302,8 @@ private:
     pair<int, int> getKingPosition(char color);
 
     bool promoted;
-    int promotionRow;
-    int promotionColumn;
+    int promotionRow{};
+    int promotionColumn{};
 };
 
 class Chess {
@@ -303,7 +321,7 @@ public:
     void movePiece(int initialRow, int initialColumn, int finishRow, int finishColumn);
 
     void assertSelfKingIsNotAttacked(int initialRow, int initialColumn, int finishRow, int finishColumn,
-                                     std::shared_ptr<ChessPiece> &pieceWhereThePieceFall);
+                                     shared_ptr<ChessPiece> pieceWhereThePieceFall);
 
     void assertCanMove(int initialRow, int initialColumn, int finishRow, int finishColumn);
 
@@ -321,6 +339,11 @@ public:
 
     bool isCheckMate();
 
+    bool isStaleMate();
+
+    bool canShortCastle();
+
+    bool isGameRunning() const;
 private:
     ChessBoard board;
     char turn;
@@ -330,7 +353,12 @@ private:
     void changeTurn();
 
     void
-    undoMove(int initialRow, int initialColumn, int finishRow, int finishColumn, shared_ptr<ChessPiece> &eatenPiece);
+    undoMove(int initialRow, int initialColumn, int finishRow, int finishColumn, shared_ptr<ChessPiece> eatenPiece);
+
+    static void assertIsInsideChessBoard(int initialRow, int initialColumn);
+
+    static bool isOutsideChessBoard(int initialRow, int initialColumn);
+
 
 };
 
