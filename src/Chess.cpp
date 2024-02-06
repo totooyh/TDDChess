@@ -43,9 +43,6 @@ void Chess::movePiece(int initialRow, int initialColumn, int finishRow, int fini
   if (gameOver) {
     throw ("The game is over");
   }
-  cout << initialRow << initialColumn << finishRow << finishColumn << endl;
-  cout << board.getPieceAt(initialRow, initialColumn)->getPiece() << endl;
-  cout << board.getPieceAt(finishRow, finishColumn)->getPiece() << endl;
   assertCanMove(initialRow, initialColumn, finishRow, finishColumn);
   //esto es medio una cagada, me gustaria de alguna manera agregarlo al assertCanMove, no debe ser imposible para nada, lo del rey digo.
   shared_ptr<ChessPiece> pieceWhereThePieceFall = board.getPieceAt(finishRow, finishColumn);
@@ -260,6 +257,19 @@ void ChessBoard::setUpPieces(char pieces[8][8]) {
 
 void ChessBoard::movePiece(int initialRow, int initialColumn, int finishRow, int finishColumn) {
   shared_ptr<ChessPiece> piece = board[initialRow][initialColumn];
+  if(piece->getPiece() == 'K'  && initialRow == finishRow && initialRow == 0){
+    if(initialColumn == 4 && finishColumn == 6)
+      movePiece(0, 7, 0, 5);
+    if(initialColumn == 4 && finishColumn == 2)
+      movePiece(0, 0, 0, 3);
+  }
+  if(piece->getPiece() == 'k'  && initialRow == finishRow && initialRow == 7){
+    if(initialColumn == 4 && finishColumn == 6)
+      movePiece(7, 7, 7, 5);
+    if(initialColumn == 4 && finishColumn == 2)
+      movePiece(7, 0, 7, 3);
+  }
+
   if(piece->isPromoting(finishRow)){
     promotionRow = finishRow;
     promotionColumn = finishColumn;
@@ -271,7 +281,7 @@ void ChessBoard::movePiece(int initialRow, int initialColumn, int finishRow, int
 
 void Chess::assertIsInsideChessBoard(int initialRow, int initialColumn) {
   if (isOutsideChessBoard(initialRow, initialColumn)) {
-    cout << initialRow << " " << initialColumn << endl;
+
     throw invalid_argument("Piece cant be outside of chess board");
   }
 }
@@ -366,16 +376,35 @@ bool ChessBoard::isPromotionTime() const {
 
 bool ChessBoard::canShortCastle(char color) {
   if (color == 'b') {
-    if(board[7][5]->getPiece() != ' ' || board[7][6]->getPiece() != ' '){
+    if(board[7][5]->getPiece() != ' ' || board[7][6]->getPiece() != ' ' || board[7][7]->getPiece() != 'r'){
       return false;
     }
   }else{
-    if(board[0][5]->getPiece() != ' ' || board[0][6]->getPiece() != ' '){
+    if(board[0][5]->getPiece() != ' ' || board[0][6]->getPiece() != ' ' || board[0][7]->getPiece() != 'R'){
       return false;
     }
   }
-
+  return !isInCheck(color); //me falta ver que no este en jaque, voy a hacer una funcion que me diga si hay piezas atacando a una casilla
+//      && !isInCheckAfterMove(color, 4, 0, 4, 1)
+//      && !isInCheckAfterMove(color, 4, 0, 4, 2);
 }
+
+bool ChessBoard::canLongCastle(char color) {
+  if (color == 'b') {
+    if(board[7][3]->getPiece() != ' ' || board[7][2]->getPiece() != ' ' || board[7][1]->getPiece() != ' ' || board[7][0]->getPiece() != 'r'){
+      return false;
+    }
+  }else{
+    if(board[0][3]->getPiece() != ' ' || board[0][2]->getPiece() != ' ' || board[0][1]->getPiece() != ' ' || board[0][0]->getPiece() != 'R'){
+      return false;
+    }
+  }
+  return !isInCheck(color); //me falta ver que no este en jaque, voy a hacer una funcion que me diga si hay piezas atacando a una casilla
+//      && !isInCheckAfterMove(color, 4, 0, 4, 1)
+//      && !isInCheckAfterMove(color, 4, 0, 4, 2);
+}
+
+
 
 vector<string> TangibleChessPiece::possibleMoves(ChessBoard *board, int initialRow, int initialColumn) {
   vector<string> possibleMoves = {};
@@ -601,6 +630,7 @@ void Rook::assertCanMove(ChessBoard *board, int initialRow, int initialColumn, i
     throw invalid_argument("Rook cant move diagonally");
   }
   int direction;
+  //mucho codigo repetido, mejorable
   if (initialRow == finishRow) {
     direction = (finishColumn - initialColumn) / abs(finishColumn - initialColumn);//1 or -1
     for (int i = 1; i < abs(initialColumn - finishColumn); i++) {
@@ -640,11 +670,13 @@ char Queen::getPiece() const {
 }
 
 void Queen::assertCanMove(ChessBoard *board, int initialRow, int initialColumn, int finishRow, int finishColumn) {
+  //Se pueden mejorar los throws de las exceptions, tiran nombres con rook y bishop
   if (initialRow == finishRow || initialColumn == finishColumn) {
     Rook('b').assertCanMove(board, initialRow, initialColumn, finishRow, finishColumn);
   } else {
     Bishop('b').assertCanMove(board, initialRow, initialColumn, finishRow, finishColumn);
   }
+
 }
 
 bool Queen::isWhitePiece() {
@@ -668,9 +700,13 @@ char WhiteKing::getPiece() const {
 }
 
 void WhiteKing::assertCanMove(ChessBoard *board, int initialRow, int initialColumn, int finishRow, int finishColumn) {
-//  if(initialRow == finishRow  && initialColumn - finishColumn == 2 && board->getPieceAt(0,0)->getPiece() == 'R'){
-//    board->shortCastle(color);
-//  }
+  if(initialRow == finishRow && initialRow == 0  && finishColumn - initialColumn == 2 && board->canShortCastle('w')){
+    return;
+  }
+
+  if(initialRow == finishRow && initialRow ==0 && initialColumn - finishColumn == 2 && board->canLongCastle('w')){
+    return;
+  }
   if (abs(initialRow - finishRow) > 1 || abs(initialColumn - finishColumn) > 1) {
     throw invalid_argument("WhiteKing cant move that far");
   }
@@ -698,9 +734,15 @@ char BlackKing::getPiece() const {
 }
 
 void BlackKing::assertCanMove(ChessBoard *board, int initialRow, int initialColumn, int finishRow, int finishColumn) {
-//  if(initialRow == finishRow  && initialColumn - finishColumn == 2 && board->getPieceAt(0,0)->getPiece() == 'R'){
-//    board->shortCastle(color);
-//  }
+
+  if(initialRow == finishRow && initialRow == 7  && finishColumn - initialColumn == 2 && board->canShortCastle('b')){
+    return;
+  }
+
+  if(initialRow == finishRow  && initialRow == 7 && initialColumn - finishColumn == 2 && board->canLongCastle('b')){
+    return;
+  }
+
   if (abs(initialRow - finishRow) > 1 || abs(initialColumn - finishColumn) > 1) {
     throw invalid_argument("King cant move that far");
   }

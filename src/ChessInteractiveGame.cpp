@@ -2,6 +2,7 @@
 #include <string>
 
 using namespace std;
+
 #include "Chess.h"
 
 void parseMove(string &move){
@@ -13,6 +14,7 @@ void parseMove(string &move){
 }
 
 int main(){
+
   char initialPieces[8][8] = {
           {'R', 'N', 'B', 'Q', 'K', 'B', 'N', 'R'},
           {'P', 'P', 'P', 'P', 'P', 'P', 'P', 'P'},

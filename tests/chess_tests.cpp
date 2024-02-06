@@ -310,7 +310,6 @@ TEST_F(chessBoardTest, allPiecesStartCorrectlyWhenStartGame) {
   ASSERT_EQ(chessGame.getPieceAt(7, 5), 'b');
   ASSERT_EQ(chessGame.getPieceAt(7, 6), 'n');
   ASSERT_EQ(chessGame.getPieceAt(7, 7), 'r');
-  chessGame.printBoard();
   for (int i = 2; i < 6; i++) {
     for (int j = 0; j < 8; j++) {
       ASSERT_EQ(chessGame.getPieceAt(i, j), ' ');
@@ -373,12 +372,58 @@ TEST_F(chessBoardTest, cantMoveIfStaleMated) {
   ASSERT_ANY_THROW(chessGame.movePiece(0,3,1,3));
 }
 
-//TEST_F(chessBoardTest, canShortCastle) {
-//  chessGame.putPiece(0,7,'R');
-//  chessGame.movePiece(0,3,0,5);
-//  ASSERT_TRUE(chessGame.canShortCastle());
-//  ASSERT_TRUE(chessGame.getPieceAt(0,6) == 'K');
-//  ASSERT_TRUE(chessGame.getPieceAt(0,2) == 'R');
-//}
+TEST_F(chessBoardTest, whiteCanShortCastle) {
+  chessGame.putPiece(0,4,'K');
+  chessGame.putPiece(0,3,' ');
+  chessGame.putPiece(0,7,'R');
+  chessGame.movePiece(0,4,0,6);
+  ASSERT_TRUE(chessGame.getPieceAt(0,6) == 'K');
+  ASSERT_TRUE(chessGame.getPieceAt(0,5) == 'R');
+  ASSERT_TRUE(chessGame.getPieceAt(0,4) == ' ');
+  ASSERT_TRUE(chessGame.getPieceAt(0,7) == ' ');
+}
 
+TEST_F(chessBoardTest, whiteCanLongCastle){
+  chessGame.putPiece(0,4,'K');
+  chessGame.putPiece(0,3,' ');
+  chessGame.putPiece(0,0,'R');
+  chessGame.movePiece(0,4,0,2);
+  ASSERT_TRUE(chessGame.getPieceAt(0,2) == 'K');
+  ASSERT_TRUE(chessGame.getPieceAt(0,3) == 'R');
+  ASSERT_TRUE(chessGame.getPieceAt(0,4) == ' ');
+  ASSERT_TRUE(chessGame.getPieceAt(0,7) == ' ');
+}
 
+TEST_F(chessBoardTest, blackCanShortCastle){
+  chessGame.putPiece(7,4,'k');
+  chessGame.putPiece(7,3,' ');
+  chessGame.putPiece(7,7,'r');
+  chessGame.movePiece(0,3,0,2);
+  chessGame.movePiece(7,4,7,6);
+  ASSERT_TRUE(chessGame.getPieceAt(7,6) == 'k');
+  ASSERT_TRUE(chessGame.getPieceAt(7,5) == 'r');
+  ASSERT_TRUE(chessGame.getPieceAt(7,4) == ' ');
+  ASSERT_TRUE(chessGame.getPieceAt(7,7) == ' ');
+}
+
+TEST_F(chessBoardTest, blackCanLongCastle){
+  chessGame.putPiece(7,4,'k');
+  chessGame.putPiece(7,3,' ');
+  chessGame.putPiece(7,0,'r');
+  chessGame.movePiece(0,3,0,2);
+  chessGame.movePiece(7,4,7,2);
+  ASSERT_TRUE(chessGame.getPieceAt(7,2) == 'k');
+  ASSERT_TRUE(chessGame.getPieceAt(7,3) == 'r');
+  ASSERT_TRUE(chessGame.getPieceAt(7,4) == ' ');
+  ASSERT_TRUE(chessGame.getPieceAt(7,7) == ' ');
+}
+
+TEST_F(chessBoardTest, cantShortCastleIfKingOrRookHasMoved){
+  chessGame.putPiece(0,4,'K');
+  chessGame.putPiece(0,3,' ');
+  chessGame.putPiece(0,7,'R');
+  chessGame.movePiece(0,4,0,5);
+  chessGame.movePiece(7,3,7,2);
+  chessGame.movePiece(0,5,0,4);
+  ASSERT_ANY_THROW(chessGame.movePiece(0,5,0,7));
+}

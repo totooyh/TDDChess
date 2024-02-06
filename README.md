@@ -1,8 +1,6 @@
 #TODO
 - Pawn ampassent
 - Castling
-- Check-Mate
-- ChessGame per se
 - ChessGame interface
 - ChessBot
 

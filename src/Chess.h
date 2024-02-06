@@ -296,6 +296,8 @@ public:
 
     bool canShortCastle(char color);
 
+    bool canLongCastle(char color);
+
 private:
     shared_ptr<ChessPiece> board[8][8];
 
